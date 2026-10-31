@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+
+import { GALLERY } from "@/lib/constants";
 
 export default function GallerySection() {
   return (
@@ -7,39 +11,34 @@ export default function GallerySection() {
         <div className="eyebrow">Visual stories</div>
 
         <h2>
-          Good things look like <em>this.</em>
+          Community in <em>action.</em>
         </h2>
 
         <p>
-          Moments from volunteers making the colder months feel
-          a little more human.
+          Moments from volunteer drives, relief distributions, and green
+          initiatives across Dhaka and beyond.
         </p>
       </div>
 
       <div className="story-grid">
-        <div className="story-large">
-          <Image
-            src="https://images.unsplash.com/photo-1609139003551-ee40f5f73ec0?auto=format&fit=crop&w=1200&q=90"
-            alt="Volunteers packing winter supplies"
-          />
-          <span>Warmth for every doorstep</span>
-        </div>
-
-        <div>
-          <Image
-            src="https://images.unsplash.com/photo-1609139003551-ee40f5f73ec0?auto=format&fit=crop&w=800&q=90"
-            alt="Hands sharing a warm meal"
-          />
-          <span>Share a little more</span>
-        </div>
-
-        <div>
-          <Image
-            src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=90"
-            alt="Young tree planted by volunteers"
-          />
-          <span>Grow something lasting</span>
-        </div>
+        {GALLERY.map((image) => (
+          <figure
+            key={image.src}
+            className={image.featured ? "story-large" : undefined}
+          >
+            <Image
+              src={image.src}
+              alt={image.alt}
+              fill
+              sizes={
+                image.featured
+                  ? "(max-width: 768px) 100vw, 58vw"
+                  : "(max-width: 768px) 100vw, 30vw"
+              }
+            />
+            <figcaption>{image.caption}</figcaption>
+          </figure>
+        ))}
       </div>
     </section>
   );

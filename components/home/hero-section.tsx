@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import {
   ArrowRight,
   HeartHandshake,
@@ -8,13 +10,16 @@ import {
   Users,
 } from "lucide-react";
 
+import { HERO_IMAGE } from "@/lib/constants";
+import { PageView } from "@/lib/types";
+
+import ImpactStats from "./impact-stats";
+
 interface HeroSectionProps {
-  onNavigate: (page: string) => void;
+  onNavigate: (page: PageView) => void;
 }
 
-export default function HeroSection({
-  onNavigate,
-}: HeroSectionProps) {
+export default function HeroSection({ onNavigate }: HeroSectionProps) {
   return (
     <section className="hero-section">
       <div className="aurora aurora-one" />
@@ -28,15 +33,14 @@ export default function HeroSection({
           </div>
 
           <h1>
-            Make this winter
+            Make winter warmer,
             <br />
-            <span>warmer for everyone.</span>
+            <em>one block at a time.</em>
           </h1>
 
           <p>
-            Discover local drives, gather your people, and turn a
-            little time into a lot of comfort for neighbors who
-            need it most.
+            Discover local drives, gather your people, and turn a little time
+            into a lot of comfort for the neighbors who need it most.
           </p>
 
           <div className="hero-actions">
@@ -44,7 +48,7 @@ export default function HeroSection({
               className="primary-button"
               onClick={() => onNavigate("events")}
             >
-              Explore winter events
+              Explore upcoming events
               <ArrowRight />
             </button>
 
@@ -58,7 +62,7 @@ export default function HeroSection({
           </div>
 
           <div className="trust-line">
-            <span className="avatar-stack">
+            <span className="avatar-stack" aria-hidden="true">
               <i>SR</i>
               <i>NK</i>
               <i>MA</i>
@@ -66,8 +70,8 @@ export default function HeroSection({
             </span>
 
             <span>
-              <strong>1,450+ people</strong> are already showing
-              up this season
+              <strong>1,450+ neighbors</strong> are already showing up this
+              season
             </span>
           </div>
         </div>
@@ -76,9 +80,14 @@ export default function HeroSection({
           <div className="art-glow" />
 
           <div className="art-card art-card-main">
-            <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1.3-FeSOGHGjRQDAym7ahSnVVzlUgUDpZ1.png"
-              alt="Friends helping each other in a snowy winter landscape"
+            <Image
+              src={HERO_IMAGE}
+              alt="Volunteers helping each other in a snowy winter landscape"
+              width={640}
+              height={480}
+              sizes="(max-width: 1024px) 90vw, 520px"
+              loading="eager"
+              fetchPriority="high"
             />
 
             <div className="art-caption">
@@ -108,27 +117,7 @@ export default function HeroSection({
         </div>
       </div>
 
-      <div className="hero-stats">
-        <div>
-          <strong>1,450<span>+</span></strong>
-          <small>Active volunteers</small>
-        </div>
-
-        <div>
-          <strong>180<span>+</span></strong>
-          <small>Events completed</small>
-        </div>
-
-        <div>
-          <strong>24k<span>+</span></strong>
-          <small>Lives touched</small>
-        </div>
-
-        <div>
-          <strong>100<span>%</span></strong>
-          <small>Community driven</small>
-        </div>
-      </div>
+      <ImpactStats />
     </section>
   );
 }

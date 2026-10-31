@@ -1,29 +1,33 @@
 "use client";
 
-import {
-  ChevronDown,
-  LogIn,
-  Menu,
-  Moon,
-  Waves,
-  Sun,
-  X,
-} from "lucide-react";
+import { LogIn, LogOut, Menu, X } from "lucide-react";
+
+import { LogoLockup } from "@/components/brand/logo";
+import { PageView, SessionUser } from "@/lib/types";
 
 interface SiteHeaderProps {
-  dark: boolean;
+  user: SessionUser | null;
   mobileOpen: boolean;
-  setDark: (value: boolean) => void;
-  setMobileOpen: (value: boolean) => void;
-  onNavigate: (page: string) => void;
+  onToggleMenu: () => void;
+  onNavigate: (page: PageView) => void;
+  onSignOut: () => void;
+}
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
 }
 
 export default function SiteHeader({
-  dark,
+  user,
   mobileOpen,
-  setDark,
-  setMobileOpen,
+  onToggleMenu,
   onNavigate,
+  onSignOut,
 }: SiteHeaderProps) {
   return (
     <header className="site-header">
@@ -33,69 +37,84 @@ export default function SiteHeader({
           onClick={() => onNavigate("home")}
           aria-label="FrostTogether home"
         >
-          <span className="brand-mark">
-            <Waves />
-          </span>
-
-          <span>
-            <strong>FrostTogether</strong>
-            <small>WINTER COMMUNITY</small>
-          </span>
+          <LogoLockup />
         </button>
 
         <nav
           className={mobileOpen ? "main-nav is-open" : "main-nav"}
           aria-label="Main navigation"
         >
-          <button onClick={() => onNavigate("home")}>
-            Home
-          </button>
+          <button onClick={() => onNavigate("events")}>Upcoming events</button>
+          <button onClick={() => onNavigate("create")}>Create event</button>
 
-          <button onClick={() => onNavigate("events")}>
-            Upcoming events
-          </button>
+          {user && (
+            <>
+              <button onClick={() => onNavigate("manage")}>
+                Manage my events
+              </button>
+              <button onClick={() => onNavigate("joined")}>
+                Joined events
+              </button>
+            </>
+          )}
 
-          <button
-            onClick={() =>
-              document
-                .getElementById("stories")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Impact stories
-          </button>
+          <div className="nav-mobile-actions">
+            {user ? (
+              <button onClick={onSignOut}>
+                <LogOut /> Sign out
+              </button>
+            ) : (
+              <button onClick={() => onNavigate("auth")}>
+                <LogIn /> Sign in
+              </button>
+            )}
+          </div>
         </nav>
 
         <div className="nav-actions">
-          <button
-            className="icon-button"
-            onClick={() => setDark(!dark)}
-            aria-label="Toggle theme"
-          >
-            {dark ? <Sun /> : <Moon />}
-          </button>
+          {user ? (
+            <>
+              <button
+                className="profile-button"
+                onClick={() => onNavigate("manage")}
+                aria-label="Manage my events"
+                title="Manage my events"
+              >
+                <span className="profile-avatar">
+                  {user.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={user.photo} alt="" />
+                  ) : (
+                    initials(user.name)
+                  )}
+                </span>
+                <span className="profile-name">{user.name.split(" ")[0]}</span>
+              </button>
 
-          <button
-            className="profile-button"
-            onClick={() => onNavigate("manage")}
-            aria-label="Open profile"
-          >
-            <span className="profile-avatar">TA</span>
-            <ChevronDown />
-          </button>
-
-          <button
-            className="login-button"
-            onClick={() => onNavigate("auth")}
-          >
-            <LogIn />
-            Sign in
-          </button>
+              <button
+                className="icon-button sign-out"
+                onClick={onSignOut}
+                aria-label="Sign out"
+                title="Sign out"
+              >
+                <LogOut />
+              </button>
+            </>
+          ) : (
+            <button
+              className="login-button"
+              onClick={() => onNavigate("auth")}
+            >
+              <LogIn />
+              Sign in
+            </button>
+          )}
 
           <button
             className="menu-button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle navigation"
+            onClick={onToggleMenu}
+            aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X /> : <Menu />}
           </button>

@@ -1,48 +1,62 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Check, X } from "lucide-react";
+
+import { SessionUser } from "@/lib/types";
 
 interface SignUpFormProps {
-  onSuccess: () => void;
+  onSuccess: (user: SessionUser) => void;
   onLogin: () => void;
 }
 
-export default function SignUpForm({
-  onSuccess,
-  onLogin,
-}: SignUpFormProps) {
+function passwordChecks(password: string) {
+  return [
+    { label: "At least one uppercase letter", ok: /[A-Z]/.test(password) },
+    { label: "At least one lowercase letter", ok: /[a-z]/.test(password) },
+    { label: "At least one number", ok: /\d/.test(password) },
+    { label: "Minimum 6 characters", ok: password.length >= 6 },
+  ];
+}
+
+export default function SignUpForm({ onSuccess, onLogin }: SignUpFormProps) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const checks = passwordChecks(password);
+  const passwordValid = checks.every((check) => check.ok);
+
   return (
     <>
       <form
+        className="auth-form"
         onSubmit={(event) => {
           event.preventDefault();
 
-          const form = event.currentTarget;
-          const data = new FormData(form);
+          const data = new FormData(event.currentTarget);
+          const name = String(data.get("name") || "").trim();
+          const email = String(data.get("email") || "").trim();
+          const photo = String(data.get("photo") || "").trim();
 
-          const name = String(data.get("name") || "");
-          const email = String(data.get("email") || "");
-          const password = String(data.get("password") || "");
-          const photo = String(data.get("photo") || "");
-
-          if (
-            !/[A-Z]/.test(password) ||
-            !/[a-z]/.test(password) ||
-            password.length < 6
-          ) {
+          if (name.length < 2) {
+            setError("Tell us your full name.");
             return;
           }
 
-          console.log({ name, email, password, photo });
+          if (!passwordValid) {
+            setError("Your password does not meet every rule yet.");
+            return;
+          }
 
-          onSuccess();
+          setError("");
+          onSuccess({ name, email, photo: photo || undefined });
         }}
       >
         <label>
           Full name
           <input
             name="name"
-            placeholder="Your full name"
+            placeholder="Tanvir Ahmed"
+            minLength={2}
             required
           />
         </label>
@@ -58,11 +72,11 @@ export default function SignUpForm({
         </label>
 
         <label>
-          Photo URL
+          Profile photo URL <span className="optional">(optional)</span>
           <input
             name="photo"
             type="url"
-            placeholder="https://example.com/photo.jpg"
+            placeholder="https://images.unsplash.com/..."
           />
         </label>
 
@@ -71,15 +85,28 @@ export default function SignUpForm({
           <input
             name="password"
             type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             placeholder="At least 6 characters"
             minLength={6}
             required
           />
         </label>
 
-        <small className="hint">
-          Use an uppercase letter, lowercase letter, and 6+ characters.
-        </small>
+        <ul className="password-rules">
+          {checks.map((check) => (
+            <li key={check.label} className={check.ok ? "ok" : ""}>
+              {check.ok ? <Check /> : <X />}
+              {check.label}
+            </li>
+          ))}
+        </ul>
+
+        {error && (
+          <span className="form-error" role="alert">
+            {error}
+          </span>
+        )}
 
         <button className="primary-button full" type="submit">
           Create account <ArrowRight />

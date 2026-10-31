@@ -4,7 +4,9 @@ export interface Event {
 
   title: string;
   type: string;
+  /** ISO date, e.g. 2026-11-15 */
   date: string;
+  time?: string;
   location: string;
   host: string;
   image: string;
@@ -12,7 +14,32 @@ export interface Event {
 
   organizerEmail?: string;
   joinedCount?: number;
+  capacity?: number;
+  guidelines?: string[];
   createdAt?: string;
+}
+
+export interface EventCardProps {
+  event: Event;
+  onClick: () => void;
+}
+
+export interface SessionUser {
+  name: string;
+  email: string;
+  photo?: string;
+}
+
+export interface EventDraft {
+  title: string;
+  type: string;
+  date: string;
+  time?: string;
+  location: string;
+  image: string;
+  description: string;
+  capacity?: number;
+  guidelines?: string[];
 }
 
 export interface Feature {
@@ -26,6 +53,10 @@ export type PageView =
   | "events"
   | "auth"
   | "create"
+  | "edit"
   | "joined"
   | "manage"
   | "details";
+
+/** eventId -> ISO timestamp of when the visitor joined */
+export type JoinedMap = Record<string, string>;

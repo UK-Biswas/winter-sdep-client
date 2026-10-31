@@ -1,11 +1,34 @@
 import type { Metadata } from "next";
+import { Bricolage_Grotesque, Instrument_Sans, Instrument_Serif } from "next/font/google";
 
 import "./globals.css";
+
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const body = Instrument_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const accent = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
+  variable: "--font-accent",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "FrostTogether | Winter Community",
   description:
-    "Discover local winter relief events, connect with volunteers, and make your community warmer.",
+    "Discover local winter relief drives, create your own initiative, and join the neighbors making the cold months warmer.",
 };
 
 export default function RootLayout({
@@ -14,7 +37,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${accent.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

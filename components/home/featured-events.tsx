@@ -1,8 +1,10 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { Event } from "@/lib/types";
+
 import EventCard from "@/components/events/event-card";
+import { Event } from "@/lib/types";
+import { getEventId, sortByDate } from "@/lib/events";
 
 interface FeaturedEventsProps {
   events: Event[];
@@ -16,13 +18,14 @@ export default function FeaturedEvents({
   onViewAll,
 }: FeaturedEventsProps) {
   return (
-    <section className="section events-section">
+    <section className="section events-section" id="events">
       <div className="section-heading row-heading">
         <div>
           <div className="eyebrow">A little closer to home</div>
-          <h2>Upcoming winter events</h2>
+          <h2>Recent upcoming events</h2>
           <p>
-            Find a cause that feels like yours and show up for it.
+            Latest community drives scheduled in your city. Get involved
+            today — every one of them is still open.
           </p>
         </div>
 
@@ -32,13 +35,15 @@ export default function FeaturedEvents({
       </div>
 
       <div className="event-grid">
-        {events.slice(0, 3).map((event) => (
-          <EventCard
-            key={event._id || event.id || event.title}
-            event={event}
-            onClick={() => onSelect(event)}
-          />
-        ))}
+        {sortByDate(events)
+          .slice(0, 6)
+          .map((event) => (
+            <EventCard
+              key={getEventId(event)}
+              event={event}
+              onClick={() => onSelect(event)}
+            />
+          ))}
       </div>
     </section>
   );

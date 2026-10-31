@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   ArrowRight,
   CalendarDays,
@@ -7,24 +8,25 @@ import {
   Users,
 } from "lucide-react";
 
-import { Event, EventCardProps } from "@/lib/types";
+import { EventCardProps } from "@/lib/types";
+import { formatEventDate } from "@/lib/events";
 
-export default function EventCard({
-  event,
-  onClick,
-}: EventCardProps) {
+export default function EventCard({ event, onClick }: EventCardProps) {
   return (
     <article className="event-card">
       <div className="event-image">
-        <img src={event.image} alt={event.title} />
+        <Image
+          src={event.image}
+          alt={event.title}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 360px"
+        />
 
-        <span className="event-tag">
-          {event.type}
-        </span>
+        <span className="event-tag">{event.type}</span>
 
         <span className="event-date">
           <CalendarDays />
-          {event.date}
+          {formatEventDate(event.date)}
         </span>
       </div>
 
@@ -36,10 +38,10 @@ export default function EventCard({
           {event.location}
         </p>
 
-        <p>{event.description}</p>
+        <p className="event-description">{event.description}</p>
 
         <div className="event-card-footer">
-          <span>
+          <span className="event-host">
             <Users />
             {event.host}
           </span>

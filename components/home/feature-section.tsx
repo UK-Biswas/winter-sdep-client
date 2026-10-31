@@ -1,52 +1,25 @@
-import {
-  ArrowRight,
-  Compass,
-  HeartHandshake,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-const features = [
-  {
-    icon: HeartHandshake,
-    title: "Warmth, made local",
-    text: "Turn a simple idea into a coordinated winter drive with people who care about the same streets.",
-  },
-  {
-    icon: Compass,
-    title: "Find your next cause",
-    text: "Browse trusted initiatives by date, location, or the kind of impact you want to make.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Good work, clearly",
-    text: "Every event keeps its own story, organizer, and volunteer trail in one transparent place.",
-  },
-  {
-    icon: Sparkles,
-    title: "Small actions, lasting change",
-    text: "Build a habit of helping with meaningful opportunities that fit your time and your neighborhood.",
-  },
-];
+import { FEATURES } from "@/lib/constants";
 
 export default function FeatureSection() {
   return (
-    <section className="section features-section">
+    <section className="section features-section" id="features">
       <div className="section-heading centered">
         <div className="eyebrow">Built for good neighbors</div>
 
         <h2>
-          Turn care into <em>momentum.</em>
+          Everything you need to <em>turn care into momentum.</em>
         </h2>
 
         <p>
-          Everything you need to create, discover, and join meaningful
-          winter action in your community.
+          A focused toolkit for people who would rather organize a drive than
+          scroll past one.
         </p>
       </div>
 
       <div className="feature-grid">
-        {features.map(({ icon: Icon, title, text }) => (
+        {FEATURES.map(({ icon: Icon, title, text }) => (
           <article className="feature-card" key={title}>
             <div className="feature-icon">
               <Icon />
@@ -54,7 +27,8 @@ export default function FeatureSection() {
 
             <h3>{title}</h3>
             <p>{text}</p>
-            <ArrowRight />
+
+            <ArrowRight className="feature-arrow" aria-hidden="true" />
           </article>
         ))}
       </div>

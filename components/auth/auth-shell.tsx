@@ -1,7 +1,9 @@
 "use client";
 
-import { Snowflake } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ReactNode } from "react";
+
+import { LogoLockup } from "@/components/brand/logo";
 
 interface AuthShellProps {
   title: string;
@@ -19,13 +21,13 @@ export default function AuthShell({
   return (
     <main className="auth-main">
       <div className="auth-card">
-        <button className="back-button" onClick={onBack}>
-          ← Back home
-        </button>
+        <div className="auth-card-top">
+          <button className="back-button" onClick={onBack}>
+            <ArrowLeft /> Back home
+          </button>
 
-        <span className="auth-mark">
-          <Snowflake />
-        </span>
+          <LogoLockup />
+        </div>
 
         <h1>{title}</h1>
         <p>{description}</p>

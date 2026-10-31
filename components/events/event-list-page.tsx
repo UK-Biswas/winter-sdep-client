@@ -3,9 +3,10 @@
 import { CalendarDays, HeartHandshake } from "lucide-react";
 
 import { Event } from "@/lib/types";
-import EventGrid from "./event-grid";
-import EventFilters from "./event-filters";
+
 import EmptyEvents from "./empty-events";
+import EventFilters from "./event-filters";
+import EventGrid from "./event-grid";
 
 interface EventListPageProps {
   events: Event[];
@@ -15,6 +16,7 @@ interface EventListPageProps {
   setCategory: (value: string) => void;
   onSelect: (event: Event) => void;
   onCreate: () => void;
+  onReset: () => void;
 }
 
 export default function EventListPage({
@@ -25,6 +27,7 @@ export default function EventListPage({
   setCategory,
   onSelect,
   onCreate,
+  onReset,
 }: EventListPageProps) {
   return (
     <main className="page-main">
@@ -38,8 +41,9 @@ export default function EventListPage({
           <h1>Upcoming events</h1>
 
           <p>
-            Discover verified volunteer initiatives scheduled
-            for upcoming dates.
+            Discover verified volunteer initiatives scheduled for upcoming
+            dates. Past drives leave the board automatically, so every card here
+            still needs you.
           </p>
         </div>
 
@@ -54,12 +58,14 @@ export default function EventListPage({
         setSearch={setSearch}
         category={category}
         setCategory={setCategory}
+        count={events.length}
+        onReset={onReset}
       />
 
       {events.length > 0 ? (
         <EventGrid events={events} onSelect={onSelect} />
       ) : (
-        <EmptyEvents />
+        <EmptyEvents onAction={onReset} onSecondary={onCreate} />
       )}
     </main>
   );
