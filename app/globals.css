@@ -51,6 +51,8 @@
    ============================================================ */
 
 :root {
+  color-scheme: light;
+
   --background: #fbfaf5;
   --foreground: #0a2320;
   --card: #ffffff;
@@ -110,6 +112,74 @@
     0 12px 32px -22px rgba(6, 46, 42, 0.35);
   --ft-shadow-md: 0 30px 70px -42px rgba(6, 46, 42, 0.5);
   --ft-shadow-lg: 0 40px 90px -46px rgba(6, 46, 42, 0.62);
+}
+
+/* ============================================================
+   Dark theme
+   Applied through data-theme on <html> by the theme toggle.
+   ============================================================ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #081713;
+  --foreground: #e8f3ee;
+  --card: #0e211c;
+  --card-foreground: #e8f3ee;
+  --popover: #0e211c;
+  --popover-foreground: #e8f3ee;
+  --primary: #146b60;
+  --primary-foreground: #f2fdf8;
+  --secondary: #14312a;
+  --secondary-foreground: #cfe9e1;
+  --muted: #122a24;
+  --muted-foreground: #9db8b0;
+  --accent: #f5ac3c;
+  --accent-foreground: #2a1a02;
+  --destructive: #e07a66;
+  --border: #1f3a33;
+  --input: #27463d;
+  --ring: #4fbfa8;
+  --chart-1: #4fbfa8;
+  --chart-2: #f5ac3c;
+  --chart-3: #7fb9a8;
+  --chart-4: #e07a66;
+  --chart-5: #9db8b0;
+  --sidebar: #0e211c;
+  --sidebar-foreground: #e8f3ee;
+  --sidebar-primary: #146b60;
+  --sidebar-primary-foreground: #f2fdf8;
+  --sidebar-accent: #14312a;
+  --sidebar-accent-foreground: #cfe9e1;
+  --sidebar-border: #1f3a33;
+  --sidebar-ring: #4fbfa8;
+
+  --ft-snow: #081713;
+  --ft-surface: #0e211c;
+  --ft-surface-soft: #122a24;
+  --ft-surface-sunk: #0a1c17;
+  --ft-line: #1f3a33;
+  --ft-line-strong: #2f5449;
+  --ft-ink: #e8f3ee;
+  --ft-ink-soft: #9db8b0;
+  --ft-pine: #146b60;
+  --ft-pine-hover: #187a6d;
+  --ft-pine-deep: #04120f;
+  --ft-pine-ink: #7fd6c0;
+  --ft-pine-tint: #12352c;
+  --ft-mint: #1c4a3f;
+  --ft-marigold: #f5ac3c;
+  --ft-marigold-deep: #ffc463;
+  --ft-marigold-tint: #3a2a10;
+  --ft-rose: #f08a76;
+  --ft-rose-tint: #3a1c17;
+  --ft-header-bg: rgba(8, 23, 19, 0.84);
+  --ft-glass: rgba(12, 30, 25, 0.78);
+  --ft-glass-line: rgba(255, 255, 255, 0.14);
+  --ft-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 12px 32px -22px rgba(0, 0, 0, 0.8);
+  --ft-shadow-md: 0 30px 70px -42px rgba(0, 0, 0, 0.9);
+  --ft-shadow-lg: 0 40px 90px -46px rgba(0, 0, 0, 0.95);
 }
 
 @layer base {
@@ -358,6 +428,25 @@
   background: var(--ft-surface-soft);
   border-color: var(--ft-line);
   color: var(--ft-ink);
+}
+
+/* Theme toggle swaps a single icon with CSS so the correct one paints
+   immediately, before React hydrates. */
+
+.theme-toggle .theme-icon-sun {
+  display: none;
+}
+
+.theme-toggle .theme-icon-moon {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .theme-icon-sun {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .theme-icon-moon {
+  display: none;
 }
 
 .back-button {

@@ -31,6 +31,21 @@ export const metadata: Metadata = {
     "Discover local winter relief drives, create your own initiative, and join the neighbors making the cold months warmer.",
 };
 
+const themeScript = `(function () {
+  try {
+    var stored = window.localStorage.getItem("frosttogether-theme");
+    var theme =
+      stored === "dark" || stored === "light"
+        ? stored
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+    document.documentElement.dataset.theme = theme;
+  } catch (error) {
+    document.documentElement.dataset.theme = "light";
+  }
+})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,9 +54,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${display.variable} ${body.variable} ${accent.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {children}
+      </body>
     </html>
   );
 }

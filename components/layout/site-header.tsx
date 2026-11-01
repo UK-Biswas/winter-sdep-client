@@ -5,6 +5,8 @@ import { LogIn, LogOut, Menu, X } from "lucide-react";
 import { LogoLockup } from "@/components/brand/logo";
 import { PageView, SessionUser } from "@/lib/types";
 
+import ThemeToggle from "./theme-toggle";
+
 interface SiteHeaderProps {
   user: SessionUser | null;
   mobileOpen: boolean;
@@ -92,6 +94,8 @@ export default function SiteHeader({
 
         {/* Desktop Actions */}
         <div className="hidden shrink-0 items-center gap-3 lg:flex">
+          <ThemeToggle />
+
           {user ? (
             <>
               <button
@@ -220,6 +224,11 @@ export default function SiteHeader({
             )}
 
             <div className="my-2 border-t border-gray-200/20" />
+
+            <div className="flex items-center justify-between gap-2 px-3 py-2">
+              <span className="text-sm font-medium">Appearance</span>
+              <ThemeToggle />
+            </div>
 
             {user ? (
               <button

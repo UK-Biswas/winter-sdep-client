@@ -11,9 +11,16 @@ import SignUpForm from "./sign-up-form";
 interface AuthPageProps {
   onBack: () => void;
   onSuccess: (user: SessionUser) => void;
+  googleEnabled?: boolean;
+  nextPath?: string;
 }
 
-export default function AuthPage({ onBack, onSuccess }: AuthPageProps) {
+export default function AuthPage({
+  onBack,
+  onSuccess,
+  googleEnabled = false,
+  nextPath,
+}: AuthPageProps) {
   const [register, setRegister] = useState(false);
 
   return (
@@ -35,6 +42,8 @@ export default function AuthPage({ onBack, onSuccess }: AuthPageProps) {
         <SignInForm
           onSuccess={onSuccess}
           onRegister={() => setRegister(true)}
+          googleEnabled={googleEnabled}
+          nextPath={nextPath}
         />
       )}
     </AuthShell>

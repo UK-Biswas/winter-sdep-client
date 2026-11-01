@@ -4,7 +4,6 @@ export function getEventId(event: Event): string {
   return event._id || event.id || event.title;
 }
 
-/** Local date as yyyy-mm-dd (never UTC-shifted). */
 export function todayISO(): string {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -20,7 +19,7 @@ export function addDaysISO(days: number): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-/** Parse an ISO yyyy-mm-dd as a local date, avoiding UTC drift. */
+
 export function parseISODate(iso: string): Date {
   const [year, month, day] = iso.split("-").map(Number);
   return new Date(year, (month || 1) - 1, day || 1);
