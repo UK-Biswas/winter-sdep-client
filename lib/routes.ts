@@ -13,6 +13,7 @@ export const ROUTE_PATHS: Record<PageView, string> = {
   edit: "/manage",
   joined: "/joined",
   manage: "/manage",
+  profile: "/profile",
   details: "/events",
 };
 

@@ -12,7 +12,15 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-import { demoEvents } from "@/lib/demo-data";
+import {
+  apiErrorMessage,
+  createEventRequest,
+  deleteEventRequest,
+  fetchEvents,
+  joinEventRequest,
+  leaveEventRequest,
+  updateEventRequest,
+} from "@/lib/api";
 import { authClient, useSession } from "@/lib/auth-client";
 import { getEventId, isUpcoming, sortByDate } from "@/lib/events";
 import { eventEditPath, eventPath, pathFor } from "@/lib/routes";
@@ -24,7 +32,13 @@ import {
   SessionUser,
 } from "@/lib/types";
 
-const GATED_VIEWS: PageView[] = ["create", "edit", "manage", "joined"];
+const GATED_VIEWS: PageView[] = [
+  "create",
+  "edit",
+  "manage",
+  "joined",
+  "profile",
+];
 
 interface Toast {
   id: number;
@@ -44,6 +58,8 @@ interface AppStore {
   setDeleteTarget: (event: Event | null) => void;
   sessionReady: boolean;
   sessionActive: boolean;
+  eventsLoading: boolean;
+  eventsError: string | null;
   upcomingEvents: Event[];
   visibleEvents: Event[];
   myEvents: Event[];
@@ -52,26 +68,34 @@ interface AppStore {
   navigate: (page: PageView) => void;
   openEvent: (event: Event) => void;
   editEvent: (event: Event) => void;
-  createEvent: (draft: EventDraft) => void;
-  updateEvent: (id: string, draft: EventDraft) => void;
-  confirmDelete: () => void;
-  toggleJoin: (event: Event) => void;
+  createEvent: (draft: EventDraft) => Promise<boolean>;
+  updateEvent: (id: string, draft: EventDraft) => Promise<boolean>;
+  confirmDelete: () => Promise<void>;
+  toggleJoin: (event: Event) => Promise<void>;
   handleJoin: (event: Event) => void;
   handleAuthSuccess: (account: SessionUser, redirectTo?: string) => void;
   signOut: () => void;
   resetFilters: () => void;
   handleCategory: (category: string) => void;
+  reloadEvents: () => Promise<void>;
+  refreshSession: () => Promise<void>;
+  showToast: (text: string) => void;
 }
 
 const AppContext = createContext<AppStore | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { data: session, isPending: sessionPending } = useSession();
+  const {
+    data: session,
+    isPending: sessionPending,
+    refetch: refetchSession,
+  } = useSession();
 
-  const [events, setEvents] = useState<Event[]>(demoEvents);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState<string | null>(null);
   const [user, setUser] = useState<SessionUser | null>(null);
-  const [joined, setJoined] = useState<JoinedMap>({});
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -81,6 +105,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [pendingJoinId, setPendingJoinId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
+  const hasLoadedEvents = useRef(false);
 
   /* ---------------------------- session --------------------------- */
 
@@ -97,7 +122,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [session]);
 
-  const currentUser = user ?? sessionUser;
+  const currentUser = sessionUser ?? user;
   const sessionReady = !sessionPending;
   const sessionActive = Boolean(session?.user);
 
@@ -113,6 +138,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const showToast = useCallback((text: string) => {
     setToast({ id: Date.now(), text });
   }, []);
+
+  /* ----------------------------- events ---------------------------- */
+
+  // Load the board once, then reload when the session changes so the API can
+  // attach this visitor's ownership and join flags.
+  useEffect(() => {
+    let active = true;
+
+    fetchEvents()
+      .then((data) => {
+        if (!active) return;
+
+        setEvents(data);
+        setEventsError(null);
+        hasLoadedEvents.current = true;
+      })
+      .catch((error) => {
+        if (!active) return;
+
+        const message = apiErrorMessage(
+          error,
+          "Could not load events. Please try again."
+        );
+
+        setEventsError(message);
+
+        if (!hasLoadedEvents.current) showToast(message);
+      })
+      .finally(() => {
+        if (active) setEventsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [sessionActive, showToast]);
+
+  const reloadEvents = useCallback(async () => {
+    setEventsLoading(true);
+
+    try {
+      const data = await fetchEvents();
+      setEvents(data);
+      setEventsError(null);
+      hasLoadedEvents.current = true;
+    } catch (error) {
+      setEventsError(
+        apiErrorMessage(error, "Could not load events. Please try again.")
+      );
+    } finally {
+      setEventsLoading(false);
+    }
+  }, []);
+
+  // `joinedAt` is returned per event for the signed-in visitor, so the joined
+  // map always comes from the same source of truth as the event list.
+  const joined = useMemo<JoinedMap>(() => {
+    const map: JoinedMap = {};
+
+    for (const event of events) {
+      if (event.joinedAt) {
+        map[getEventId(event)] = event.joinedAt;
+      }
+    }
+
+    return map;
+  }, [events]);
 
   /* --------------------------- derived ---------------------------- */
 
@@ -196,36 +288,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   /* ----------------------------- events --------------------------- */
 
   const toggleJoin = useCallback(
-    (event: Event) => {
+    async (event: Event) => {
       const id = getEventId(event);
       const alreadyJoined = Boolean(joined[id]);
 
-      setJoined((current) => {
-        const next = { ...current };
-        if (alreadyJoined) delete next[id];
-        else next[id] = new Date().toISOString();
-        return next;
-      });
+      try {
+        const updated = alreadyJoined
+          ? await leaveEventRequest(id)
+          : await joinEventRequest(id);
 
-      setEvents((current) =>
-        current.map((item) =>
-          getEventId(item) === id
-            ? {
-                ...item,
-                joinedCount: Math.max(
-                  (item.joinedCount ?? 0) + (alreadyJoined ? -1 : 1),
-                  0
-                ),
-              }
-            : item
-        )
-      );
+        setEvents((current) =>
+          current.map((item) => (getEventId(item) === id ? updated : item))
+        );
 
-      showToast(
-        alreadyJoined
-          ? "You left this event. Your spot is open again."
-          : "You are on the volunteer list. Thank you."
-      );
+        showToast(
+          alreadyJoined
+            ? "You left this event. Your spot is open again."
+            : "You are on the volunteer list. Thank you."
+        );
+      } catch (error) {
+        showToast(
+          apiErrorMessage(
+            error,
+            alreadyJoined
+              ? "Could not leave this event. Please try again."
+              : "Could not join this event. Please try again."
+          )
+        );
+      }
     },
     [joined, showToast]
   );
@@ -247,50 +337,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const createEvent = useCallback(
-    (draft: EventDraft) => {
-      if (!currentUser) return;
+    async (draft: EventDraft): Promise<boolean> => {
+      if (!currentUser) return false;
 
-      const newEvent: Event = {
-        id: `evt-${Date.now()}`,
-        ...draft,
-        host: currentUser.name,
-        organizerEmail: currentUser.email,
-        joinedCount: 0,
-        createdAt: new Date().toISOString(),
-      };
+      try {
+        const created = await createEventRequest(draft);
 
-      setEvents((current) => [newEvent, ...current]);
-      showToast("Your winter initiative is live.");
-      router.push(pathFor("manage"));
+        setEvents((current) => [created, ...current]);
+        showToast("Your winter initiative is live.");
+        router.push(pathFor("manage"));
+        return true;
+      } catch (error) {
+        showToast(
+          apiErrorMessage(
+            error,
+            "Could not publish your event. Please try again."
+          )
+        );
+        return false;
+      }
     },
     [router, showToast, currentUser]
   );
 
   const updateEvent = useCallback(
-    (id: string, draft: EventDraft) => {
-      setEvents((current) =>
-        current.map((event) =>
-          getEventId(event) === id ? { ...event, ...draft } : event
-        )
-      );
+    async (id: string, draft: EventDraft): Promise<boolean> => {
+      try {
+        const updated = await updateEventRequest(id, draft);
 
-      showToast("Event updated. Volunteers will see the new details.");
-      router.push(pathFor("manage"));
+        setEvents((current) =>
+          current.map((event) => (getEventId(event) === id ? updated : event))
+        );
+
+        showToast("Event updated. Volunteers will see the new details.");
+        router.push(pathFor("manage"));
+        return true;
+      } catch (error) {
+        showToast(
+          apiErrorMessage(
+            error,
+            "Could not update this event. Please try again."
+          )
+        );
+        return false;
+      }
     },
     [router, showToast]
   );
 
-  const confirmDelete = useCallback(() => {
+  const confirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
 
     const id = getEventId(deleteTarget);
 
-    setEvents((current) =>
-      current.filter((event) => getEventId(event) !== id)
-    );
+    try {
+      await deleteEventRequest(id);
 
-    setDeleteTarget(null);
-    showToast("Event deleted. Volunteer registrations were removed.");
+      setEvents((current) =>
+        current.filter((event) => getEventId(event) !== id)
+      );
+
+      setDeleteTarget(null);
+      showToast("Event deleted. Volunteer registrations were removed.");
+    } catch (error) {
+      showToast(
+        apiErrorMessage(error, "Could not delete this event. Please try again.")
+      );
+    }
   }, [deleteTarget, showToast]);
 
   /* ------------------------- auth & account ------------------------ */
@@ -304,7 +417,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const target = events.find(
           (event) => getEventId(event) === pendingJoinId
         );
-        if (target) toggleJoin(target);
+        if (target) void toggleJoin(target);
         setPendingJoinId(null);
       }
 
@@ -334,7 +447,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Clear the local session even if the network request fails.
     } finally {
       setUser(null);
-      setJoined({});
       setPendingView(null);
       setPendingPath(null);
       showToast("Signed out. See you at the next drive.");
@@ -358,6 +470,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCategory("All");
   }, []);
 
+  const refreshSession = useCallback(async () => {
+    await refetchSession();
+  }, [refetchSession]);
+
   const value = useMemo<AppStore>(
     () => ({
       events,
@@ -372,6 +488,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setDeleteTarget,
       sessionReady,
       sessionActive,
+      eventsLoading,
+      eventsError,
       upcomingEvents,
       visibleEvents,
       myEvents,
@@ -389,6 +507,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       signOut,
       resetFilters,
       handleCategory,
+      reloadEvents,
+      refreshSession,
+      showToast,
     }),
     [
       events,
@@ -400,6 +521,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       deleteTarget,
       sessionReady,
       sessionActive,
+      eventsLoading,
+      eventsError,
       upcomingEvents,
       visibleEvents,
       myEvents,
@@ -417,6 +540,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       signOut,
       resetFilters,
       handleCategory,
+      reloadEvents,
+      refreshSession,
+      showToast,
     ]
   );
 

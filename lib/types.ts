@@ -12,11 +12,17 @@ export interface Event {
   image: string;
   description: string;
 
+  organizerId?: string;
   organizerEmail?: string;
   joinedCount?: number;
   capacity?: number;
   guidelines?: string[];
   createdAt?: string;
+  updatedAt?: string;
+  /** Present when the signed-in visitor has joined this event. */
+  joinedAt?: string;
+  /** Computed by the API for the signed-in visitor. */
+  isOwner?: boolean;
 }
 
 export interface EventCardProps {
@@ -56,6 +62,7 @@ export type PageView =
   | "edit"
   | "joined"
   | "manage"
+  | "profile"
   | "details";
 
 /** eventId -> ISO timestamp of when the visitor joined */

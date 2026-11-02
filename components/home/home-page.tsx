@@ -9,12 +9,14 @@ import HeroSection from "./hero-section";
 
 interface HomePageProps {
   events: Event[];
+  loading?: boolean;
   onNavigate: (page: PageView) => void;
   onSelectEvent: (event: Event) => void;
 }
 
 export default function HomePage({
   events,
+  loading = false,
   onNavigate,
   onSelectEvent,
 }: HomePageProps) {
@@ -26,6 +28,7 @@ export default function HomePage({
 
       <FeaturedEvents
         events={events}
+        loading={loading}
         onSelect={onSelectEvent}
         onViewAll={() => onNavigate("events")}
       />

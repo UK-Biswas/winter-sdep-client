@@ -18,7 +18,7 @@ interface CreateEventFormProps {
   initialEvent?: Event | null;
   organizer: SessionUser;
   onBack: () => void;
-  onSubmit: (draft: EventDraft) => void;
+  onSubmit: (draft: EventDraft) => Promise<boolean> | boolean | void;
 }
 
 type FieldErrors = Partial<Record<"title" | "date" | "location" | "image" | "description", string>>;
@@ -48,6 +48,7 @@ export default function CreateEventForm({
     initialEvent?.description ?? ""
   );
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const minDate = todayISO();
 
@@ -81,7 +82,7 @@ export default function CreateEventForm({
     return next;
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextErrors = validate();
@@ -91,22 +92,32 @@ export default function CreateEventForm({
       return;
     }
 
-    onSubmit({
-      title: title.trim(),
-      type,
-      date,
-      location: location.trim(),
-      image: image.trim(),
-      description: description.trim(),
-    });
+    setSubmitting(true);
 
-    if (mode === "create") {
-      setTitle("");
-      setDate("");
-      setLocation("");
-      setImage("");
-      setDescription("");
-      setType(EVENT_TYPES[0]);
+    try {
+      const saved = await onSubmit({
+        title: title.trim(),
+        type,
+        date,
+        location: location.trim(),
+        image: image.trim(),
+        description: description.trim(),
+      });
+
+      if (saved === false) return;
+
+      if (mode === "create") {
+        setTitle("");
+        setDate("");
+        setLocation("");
+        setImage("");
+        setDescription("");
+        setType(EVENT_TYPES[0]);
+      }
+    } catch {
+      // The provider surfaces the API error through a toast; keep the values.
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -224,6 +235,7 @@ export default function CreateEventForm({
                 />
               </div>
             )}
+
           </div>
 
           <label className="span-2">
@@ -252,8 +264,19 @@ export default function CreateEventForm({
           </span>
         </div>
 
-        <button className="primary-button full" type="submit">
-          {mode === "edit" ? "Update event" : "Publish event"} <ArrowRight />
+        <button
+          className="primary-button full"
+          type="submit"
+          disabled={submitting}
+        >
+          {submitting
+            ? mode === "edit"
+              ? "Updating…"
+              : "Publishing…"
+            : mode === "edit"
+              ? "Update event"
+              : "Publish event"}{" "}
+          <ArrowRight />
         </button>
       </form>
     </main>

@@ -3,17 +3,20 @@
 import { ArrowRight } from "lucide-react";
 
 import EventCard from "@/components/events/event-card";
+import LoadingSkeleton from "@/components/ui/loading-skeleton";
 import { Event } from "@/lib/types";
 import { getEventId, sortByDate } from "@/lib/events";
 
 interface FeaturedEventsProps {
   events: Event[];
+  loading?: boolean;
   onSelect: (event: Event) => void;
   onViewAll: () => void;
 }
 
 export default function FeaturedEvents({
   events,
+  loading = false,
   onSelect,
   onViewAll,
 }: FeaturedEventsProps) {
@@ -34,17 +37,21 @@ export default function FeaturedEvents({
         </button>
       </div>
 
-      <div className="event-grid">
-        {sortByDate(events)
-          .slice(0, 6)
-          .map((event) => (
-            <EventCard
-              key={getEventId(event)}
-              event={event}
-              onClick={() => onSelect(event)}
-            />
-          ))}
-      </div>
+      {loading ? (
+        <LoadingSkeleton count={3} />
+      ) : (
+        <div className="event-grid">
+          {sortByDate(events)
+            .slice(0, 6)
+            .map((event) => (
+              <EventCard
+                key={getEventId(event)}
+                event={event}
+                onClick={() => onSelect(event)}
+              />
+            ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -2,15 +2,47 @@
 
 import EmptyEvents from "@/components/events/empty-events";
 import EventDetails from "@/components/events/event-details";
+import LoadingSkeleton from "@/components/ui/loading-skeleton";
 import { getEventId } from "@/lib/events";
 
 import { useApp } from "../app-provider";
 
 export default function EventDetailsRoute({ eventId }: { eventId: string }) {
-  const { user, joined, getEventById, handleJoin, navigate, editEvent } =
-    useApp();
+  const {
+    user,
+    joined,
+    getEventById,
+    handleJoin,
+    navigate,
+    editEvent,
+    eventsLoading,
+    eventsError,
+    reloadEvents,
+  } = useApp();
 
   const event = getEventById(eventId);
+
+  if (eventsLoading) {
+    return (
+      <main className="page-main" aria-busy="true" aria-live="polite">
+        <span className="visually-hidden">Loading event details…</span>
+        <LoadingSkeleton count={1} />
+      </main>
+    );
+  }
+
+  if (eventsError) {
+    return (
+      <main className="page-main">
+        <EmptyEvents
+          title="Could not load this event"
+          description={eventsError}
+          actionLabel="Try again"
+          onAction={reloadEvents}
+        />
+      </main>
+    );
+  }
 
   if (!event) {
     return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn, LogOut, Menu, X } from "lucide-react";
+import { LogIn, LogOut, Menu, UserRound, X } from "lucide-react";
 
 import { LogoLockup } from "@/components/brand/logo";
 import { PageView, SessionUser } from "@/lib/types";
@@ -123,6 +123,15 @@ export default function SiteHeader({
               </button>
 
               <button
+                className="icon-button flex h-9 w-9 items-center justify-center"
+                onClick={() => handleNavigate("profile")}
+                aria-label="Edit profile"
+                title="Edit profile"
+              >
+                <UserRound size={18} />
+              </button>
+
+              <button
                 className="icon-button sign-out flex h-9 w-9 items-center justify-center"
                 onClick={onSignOut}
                 aria-label="Sign out"
@@ -219,6 +228,13 @@ export default function SiteHeader({
                   onClick={() => handleNavigate("joined")}
                 >
                   Joined events
+                </button>
+
+                <button
+                  className="w-full rounded-lg px-3 py-3 text-left text-sm font-medium transition-colors hover:bg-black/5"
+                  onClick={() => handleNavigate("profile")}
+                >
+                  Edit profile
                 </button>
               </>
             )}
