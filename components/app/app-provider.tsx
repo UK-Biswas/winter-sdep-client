@@ -107,11 +107,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
   const hasLoadedEvents = useRef(false);
 
-  /* ---------------------------- session --------------------------- */
-
-  // Derive the session user instead of copying it into state from an effect.
-  // The local `user` value covers the instant after sign-in/sign-out while the
-  // Better Auth session query catches up.
+  
   const sessionUser = useMemo<SessionUser | null>(() => {
     if (!session?.user) return null;
 
@@ -126,7 +122,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const sessionReady = !sessionPending;
   const sessionActive = Boolean(session?.user);
 
-  /* ----------------------------- toast ----------------------------- */
+
 
   useEffect(() => {
     if (!toast) return;
@@ -139,10 +135,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setToast({ id: Date.now(), text });
   }, []);
 
-  /* ----------------------------- events ---------------------------- */
-
-  // Load the board once, then reload when the session changes so the API can
-  // attach this visitor's ownership and join flags.
+  
   useEffect(() => {
     let active = true;
 
@@ -192,8 +185,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // `joinedAt` is returned per event for the signed-in visitor, so the joined
-  // map always comes from the same source of truth as the event list.
+ 
   const joined = useMemo<JoinedMap>(() => {
     const map: JoinedMap = {};
 
@@ -205,8 +197,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     return map;
   }, [events]);
-
-  /* --------------------------- derived ---------------------------- */
 
   const upcomingEvents = useMemo(
     () => sortByDate(events.filter((event) => isUpcoming(event.date))),
@@ -249,7 +239,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [events]
   );
 
-  /* -------------------------- navigation -------------------------- */
+ 
 
   const navigate = useCallback(
     (page: PageView) => {
@@ -285,7 +275,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [router]
   );
 
-  /* ----------------------------- events --------------------------- */
 
   const toggleJoin = useCallback(
     async (event: Event) => {
@@ -406,7 +395,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [deleteTarget, showToast]);
 
-  /* ------------------------- auth & account ------------------------ */
+
 
   const handleAuthSuccess = useCallback(
     (account: SessionUser, redirectTo?: string) => {
@@ -454,7 +443,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [router, showToast]);
 
-  /* ---------------------------- filters --------------------------- */
+
 
   const handleCategory = useCallback(
     (nextCategory: string) => {
@@ -559,11 +548,6 @@ export function useApp(): AppStore {
   return store;
 }
 
-/**
- * Client-side gate for account-only routes. On first mount, a visitor without
- * a session is sent to the sign-in page (which returns them to `page` after a
- * successful sign-in).
- */
 export function useRequireUser(page: PageView): SessionUser | null {
   const { user, navigate, sessionReady } = useApp();
   const checked = useRef(false);
