@@ -90,23 +90,23 @@ export default function SiteFooter({
           <div className="flex flex-col items-center sm:items-start">
             <h4 className="text-white">Explore platform</h4>
 
-            <button onClick={() => onNavigate("events")}>
+            <button className="text-[12px] py-[2px]" onClick={() => onNavigate("events")}>
               Upcoming events
             </button>
 
-            <button onClick={() => onNavigate("create")}>
+            <button className="text-[12px] py-[2px]" onClick={() => onNavigate("create")}>
               Create an event
             </button>
 
-            <button onClick={() => onNavigate("manage")}>
+            <button className="text-[12px] py-[2px]" onClick={() => onNavigate("manage")}>
               Manage my events
             </button>
 
-            <button onClick={() => onNavigate("joined")}>
+            <button className="text-[12px] py-[2px]" onClick={() => onNavigate("joined")}>
               My joined events
             </button>
 
-            <button onClick={() => onNavigate("auth")}>
+            <button className="text-[12px] py-[2px]" onClick={() => onNavigate("auth")}>
               Sign in or register
             </button>
           </div>
@@ -116,7 +116,7 @@ export default function SiteFooter({
             <h4 className="text-white">Active causes</h4>
 
             {ACTIVE_CAUSES.map((cause) => (
-              <button
+              <button className="text-[12px] py-[2px]"
                 key={cause.label}
                 onClick={() => onCategory(cause.category)}
               >
