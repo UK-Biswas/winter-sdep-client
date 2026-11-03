@@ -3159,3 +3159,262 @@ textarea {
 
 
 /* ........................... */
+
+/* ============================================================
+   Newsletter (landing page, above the footer)
+   Deep-pine gradient card matching the hero/footer theme.
+   Self-contained: prefix everything with `.newsletter-*` so no
+   existing styles are affected. Dark theme needs no overrides
+   because the card palette is identical in both modes.
+   ============================================================ */
+
+.newsletter-section {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 16px 24px 92px;
+}
+
+.newsletter-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 56px 64px 46px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: center;
+  color: #d9efe7;
+  background:
+    radial-gradient(
+      560px 300px at 84% -18%,
+      rgba(245, 172, 60, 0.16),
+      transparent 70%
+    ),
+    radial-gradient(
+      640px 340px at 10% 118%,
+      rgba(127, 185, 168, 0.24),
+      transparent 72%
+    ),
+    linear-gradient(160deg, var(--ft-pine) 0%, var(--ft-pine-deep) 72%);
+  box-shadow: var(--ft-shadow-lg);
+}
+
+.newsletter-glow {
+  position: absolute;
+  top: -45%;
+  left: 8%;
+  width: 55%;
+  height: 90%;
+  z-index: -1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ft-marigold) 18%, transparent);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.newsletter-aurora {
+  position: absolute;
+  bottom: -55%;
+  right: -6%;
+  width: 46%;
+  height: 96%;
+  z-index: -1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ft-mint) 40%, transparent);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.newsletter-watermark {
+  position: absolute;
+  top: -48px;
+  right: -38px;
+  z-index: -1;
+  width: 220px;
+  height: 220px;
+  color: #d9f7ec;
+  opacity: 0.09;
+  pointer-events: none;
+  animation: newsletter-spin 48s linear infinite;
+}
+
+@keyframes newsletter-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.newsletter-eyebrow {
+  color: #9fd8c8;
+}
+
+.newsletter-card h2 {
+  margin: 16px auto 12px;
+  max-width: 22ch;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  color: #f4fdf9;
+}
+
+.newsletter-card h2 em {
+  font-family: var(--font-accent), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #ffd28a;
+}
+
+.newsletter-card > p {
+  max-width: 52ch;
+  margin: 0 auto;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: #c3e2d8;
+}
+
+.newsletter-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 500px;
+  margin: 28px auto 0;
+}
+
+.newsletter-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4fdf9;
+  font-size: 0.9rem;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(223, 244, 237, 0.55);
+}
+
+.newsletter-form input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+}
+
+.newsletter-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: none;
+  padding: 13px 22px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--ft-marigold);
+  color: #2a1a02;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  box-shadow: 0 14px 26px -14px rgba(245, 172, 60, 0.55);
+  transition: background-color 0.18s ease, transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.newsletter-submit svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.newsletter-submit:hover {
+  background: #ffc463;
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px -14px rgba(245, 172, 60, 0.65);
+}
+
+.newsletter-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 500px;
+  margin: 28px auto 0;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 214, 191, 0.4);
+  background: rgba(127, 214, 191, 0.12);
+  color: #d9f7ec;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.newsletter-success svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: #ffd28a;
+}
+
+.newsletter-success span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+  color: #c3e2d8;
+}
+
+.newsletter-success strong {
+  color: #f4fdf9;
+}
+
+.newsletter-perks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 28px;
+  list-style: none;
+  margin: 26px auto 0;
+  padding: 16px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.newsletter-perks li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #bfe3d8;
+}
+
+.newsletter-perks svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--ft-marigold);
+}
+
+@media (max-width: 720px) {
+  .newsletter-section {
+    padding: 8px 20px 62px;
+  }
+
+  .newsletter-card {
+    padding: 40px 22px 34px;
+    border-radius: 26px;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .newsletter-submit {
+    width: 100%;
+  }
+
+  .newsletter-perks {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+}

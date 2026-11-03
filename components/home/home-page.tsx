@@ -6,6 +6,7 @@ import FeatureSection from "./feature-section";
 import FeaturedEvents from "./featured-events";
 import GallerySection from "./gallery-section";
 import HeroSection from "./hero-section";
+import NewsletterSection from "./newsletter-section";
 
 interface HomePageProps {
   events: Event[];
@@ -34,6 +35,8 @@ export default function HomePage({
       />
 
       <GallerySection />
+
+      <NewsletterSection />
     </main>
   );
 }
